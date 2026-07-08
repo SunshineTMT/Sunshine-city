@@ -7,7 +7,7 @@ import {
   Trophy,
   Save,
   Landmark,
-  Baseball,
+  CircleDot,
   Heart,
   Sun,
   Building2,
@@ -183,7 +183,7 @@ export default function App() {
     {
       id: "diamond",
       name: "Diamond District",
-      icon: Baseball,
+      icon: CircleDot,
       desc: "Fall baseball purpose",
       lit: false,
     },
