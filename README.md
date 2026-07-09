@@ -1,24 +1,12 @@
-# Sunshine City
+# Sunshine City v1.1
 
-Sunshine City is the home base for Operation September.
+Daily-use upgrade:
+- City power dashboard
+- Hydration Bay water tower
+- Iron District Marcy set tracker
+- Mission Control scoreboard
+- Scale Street weigh-ins
+- Save code backup
 
-## Netlify
-
-Build command:
-
-```bash
-npm run build
-```
-
-Publish directory:
-
-```bash
-dist
-```
-
-## Local dev
-
-```bash
-npm install
-npm run dev
-```
+Netlify build command: npm run build
+Publish directory: dist
