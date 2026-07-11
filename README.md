@@ -1,15 +1,19 @@
-# Sunshine City v1.3A
+# Sunshine City v1.3B — Lights On Update
 
-Training Complex update:
-- Iron District renamed to The Goal Line
-- Scale Street renamed to Film Room
-- Vacation District renamed to The Surprise
-- Diamond District renamed to The Clubhouse
-- Leg Curls current level updated to 6
-- Added version badge
-- Added Already Paid checklist
-- Added Extra Savings Ledger
-- Preserved paycheck tracker, safe cash, and vacation spending
+New:
+- Completed Conditioning Field
+- Total daily miles
+- Intentional miles
+- Activity miles automatically calculated
+- Weekly and lifetime mileage
+- Today's Game Plan
+- City Lights Calendar
+- Current, best, and total perfect-day streaks
+- Stronger district lighting
+- v1.3A data migration
+- Leg Curls remains Level 6
+- The Surprise savings ledger and spending tracker preserved
 
-Netlify build command: npm run build
-Publish directory: dist
+Netlify:
+- Build command: npm run build
+- Publish directory: dist
