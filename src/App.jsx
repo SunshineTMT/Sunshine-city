@@ -1,76 +1,786 @@
 
-import React,{useMemo,useState}from"react";
-import{Home,Dumbbell,Droplets,Scale,Trophy,Save,Landmark,CircleDot,Heart,Sun,Building2,Palmtree,WalletCards,Utensils,Car,IceCreamBowl,Shield}from"lucide-react";
+import React, { useMemo, useState } from "react";
+import {
+  Home,
+  Dumbbell,
+  Droplets,
+  Scale,
+  Trophy,
+  Save,
+  Landmark,
+  CircleDot,
+  Heart,
+  Sun,
+  Building2,
+  Gift,
+  WalletCards,
+  Utensils,
+  Car,
+  IceCreamBowl,
+  Shield,
+  PlusCircle,
+  CheckCircle2,
+  Trash2,
+} from "lucide-react";
 
-const START=new Date("2026-07-06"),END=new Date("2026-09-20"),VACATION=new Date("2026-08-15");
-const DAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],CUP=26,START_WEIGHT=210,GOAL_WEIGHT=198;
-const routine=[["chest","Chest Press",12,8,12],["tri","Tricep Pushdown",12,5,7],["lat","Lat Pulldown",12,6,8],["leg","Leg Curls",25,5,8]];
-const budget={food:425,iceCream:75,gas:80,jordan:200,deanna:200,buffer:100};
-const paycheck=[["d0713","Jul 13","Deanna",60],["d0720","Jul 20","Deanna",60],["j0723","Jul 23","Jordan",190],["d0727","Jul 27","Deanna",60],["d0803","Aug 3","Deanna",60],["j0806","Aug 6","Jordan",190],["d0810","Aug 10","Deanna",60]];
-const blank={water:{},days:{},weights:{},sets:{},protein:{},creatine:{},walk:{},family:{},notes:{},vacation:{safeCash:0,extra:0,paychecks:{},spent:{}}};
-function load(){try{return {...blank,...JSON.parse(localStorage.getItem("sc-v12"))}}catch{return blank}}
-function money(n){return "$"+Number(n||0).toFixed(0)}
-function enc(d){return btoa(unescape(encodeURIComponent(JSON.stringify(d))))}
-function dec(c){return JSON.parse(decodeURIComponent(escape(atob(c))))}
+const START = new Date("2026-07-06T00:00:00");
+const END = new Date("2026-09-20T00:00:00");
+const VACATION = new Date("2026-08-15T00:00:00");
 
-export default function App(){
- const[screen,setScreen]=useState("city"),[data,setData]=useState(load),[code,setCode]=useState("");
- const today=useMemo(()=>{const n=new Date();const diff=Math.floor((new Date(n.getFullYear(),n.getMonth(),n.getDate())-START)/86400000);const safe=Math.max(0,Math.min(diff,76));return{week:Math.floor(safe/7),day:safe%7,num:safe+1}},[]);
- const ck=`w${today.week}-d${today.day}`,wk=t=>`w${today.week}-${t}`;
- const cups=data.water[ck]||0,oz=cups*CUP,hydrated=cups>=5;
- const latest=Object.values(data.weights).map(Number).filter(Boolean).at(-1),lost=latest?START_WEIGHT-latest:0;
- const setDone=routine.reduce((s,[id])=>s+[1,2,3].filter(i=>data.sets[`${ck}-${id}-${i}`]).length,0),setTotal=12,iron=setDone===12;
- const vacDays=Math.max(0,Math.ceil((VACATION-new Date())/86400000));
- const paycheckSaved=paycheck.filter(p=>data.vacation?.paychecks?.[p[0]]).reduce((s,p)=>s+p[3],0);
- const vacSaved=paycheckSaved+Number(data.vacation?.safeCash||0)+Number(data.vacation?.extra||0);
- const spent=Object.values(data.vacation?.spent||{}).reduce((s,v)=>s+Number(v||0),0);
- const power=[hydrated,iron,!!data.protein[ck],!!data.creatine[ck],!!data.walk[ck]].filter(Boolean).length;
- const goal=1080;
- function update(fn){setData(p=>{const n=structuredClone(p);n.vacation=n.vacation||{safeCash:0,extra:0,paychecks:{},spent:{}};n.vacation.paychecks=n.vacation.paychecks||{};n.vacation.spent=n.vacation.spent||{};fn(n);localStorage.setItem("sc-v12",JSON.stringify(n));return n})}
- function toggle(sec,key){update(n=>{n[sec][key]=!n[sec][key]})}
- function setVal(sec,key,val){update(n=>{n[sec][key]=val})}
- function vac(key,val){update(n=>{n.vacation[key]=val})}
- function spend(cat,val){update(n=>{n.vacation.spent[cat]=Math.max(0,Number(n.vacation.spent[cat]||0)+Number(val||0))})}
- const districts=[
-  ["mission","Mission Control",Home,`${power}/5 city power`,power>=3],
-  ["iron","Iron District",Dumbbell,`${setDone}/12 sets`,iron],
-  ["hydration","Hydration Bay",Droplets,`${oz} oz`,hydrated],
-  ["scale","Scale Street",Scale,"Wed + Sat weigh-ins",!!(data.weights[wk("wed")]||data.weights[wk("sat")])],
-  ["vacation","Vacation District",Palmtree,`${vacDays} days to Pigeon Forge`,vacSaved>=680],
-  ["joan","The Joan",Landmark,"Marshall football",false],
-  ["diamond","Diamond District",CircleDot,"Fall baseball",false],
-  ["family","Family Park",Heart,"Dad mission",!!data.family[ck]],
-  ["hq","Sunshine TMT HQ",Sun,"Brand HQ",false],
-  ["progress","Progress Board",Trophy,"Stats",false],
-  ["save","Save Garage",Save,"Backup",false]
- ];
- return <div className="app">
-  <div className="glow pink"/><div className="glow cyan"/>
-  <header className={`hero ${power===5?"litHero":""}`}><div className="skyline"/><p className="kicker">SUNSHINE CITY LIMITS</p><h1>Sunshine City</h1><p className="tag">Operation September • Training camp for life</p><div className="heroStats"><Stat label="mission day" value={today.num}/><Stat label="vacation" value={`${vacDays}d`} hot/><Stat label="city power" value={`${power}/5`}/></div></header>
-  {screen!=="city"&&<button className="back" onClick={()=>setScreen("city")}>← Back to City Map</button>}
-  {screen==="city"&&<><Card special title={power===5?"City fully lit.":"Build the city today."}><p className="muted">Hydration {cups}/5 • Iron {setDone}/12 sets • Vacation {money(vacSaved)}/{money(goal)}</p><Progress value={power*20}/></Card><section className="cityMap">{districts.map(([id,name,Icon,desc,lit])=><button key={id} className={`district ${lit?"lit":""}`} onClick={()=>setScreen(id)}><Building2 className="ghost" size={54}/><Icon className="icon" size={28}/><span>{name}</span><small>{desc}</small></button>)}</section></>}
-  {screen==="mission"&&<Card title={`Mission Control • ${DAYS[today.day]} • Week ${today.week+1}`}><div className="score"><Box label="Weight" val={`${latest||START_WEIGHT} lb`}/><Box label="Lost" val={`${lost.toFixed(1)} lb`}/><Box label="Water" val={`${cups}/5`}/><Box label="Iron" val={`${setDone}/12`}/></div><h3>Daily Checks</h3><div className="grid2"><Toggle active={data.walk[ck]} onClick={()=>toggle("walk",ck)}>Walk</Toggle><Toggle active={data.protein[ck]} onClick={()=>toggle("protein",ck)}>Protein</Toggle><Toggle active={data.creatine[ck]} onClick={()=>toggle("creatine",ck)}>Creatine</Toggle><Toggle active={data.family[ck]} onClick={()=>toggle("family",ck)}>Family</Toggle></div><textarea value={data.notes[ck]||""} onChange={e=>setVal("notes",ck,e.target.value)} placeholder="Quick note..."/></Card>}
-  {screen==="hydration"&&<Card title="Hydration Bay"><div className="tower"><div className="towerFill" style={{height:`${Math.min(100,cups/5*100)}%`}}/><span>{oz} oz</span></div><p className="muted">{cups} Sunshine cup(s) × 26 oz</p><Progress value={oz/130*100}/><div className="grid2"><button className="primary" onClick={()=>update(n=>{n.water[ck]=(n.water[ck]||0)+1})}>+26 oz</button><button onClick={()=>update(n=>{n.water[ck]=Math.max(0,(n.water[ck]||0)-1)})}>-26 oz</button></div>{hydrated&&<div className="cash">🏆 HYDRATION BAY CASHED</div>}</Card>}
-  {screen==="iron"&&<Card title="Iron District"><p className="muted">Your Marcy MWM-4965 circuit. Tap each set as you finish it.</p><Progress value={setDone/12*100}/>{routine.map(([id,name,reps,lvl,goal])=><div className="exercise" key={id}><h3>{name}</h3><p className="muted">3×{reps} • Level {lvl} • Goal {goal}</p><div className="setRow">{[1,2,3].map(i=>{const sk=`${ck}-${id}-${i}`;return <button key={sk} className={data.sets[sk]?"setDone":"setBtn"} onClick={()=>toggle("sets",sk)}>Set {i} {data.sets[sk]?"✅":""}</button>})}</div></div>)}{iron&&<div className="cash">💪 IRON DISTRICT COMPLETE</div>}</Card>}
-  {screen==="scale"&&<Card title="Scale Street"><div className="grid2"><label><span>Wednesday</span><input type="number" step="0.1" value={data.weights[wk("wed")]||""} onChange={e=>setVal("weights",wk("wed"),e.target.value)} placeholder="Weight"/></label><label><span>Saturday</span><input type="number" step="0.1" value={data.weights[wk("sat")]||""} onChange={e=>setVal("weights",wk("sat"),e.target.value)} placeholder="Weight"/></label></div><h3>Weight Road</h3><p>Start: {START_WEIGHT} lb</p><p>Latest: {latest||"—"} lb</p><p>Goal: {GOAL_WEIGHT} lb</p><p>Lost: {lost.toFixed(1)} lb</p><Progress value={lost/(START_WEIGHT-GOAL_WEIGHT)*100}/></Card>}
-  {screen==="vacation"&&<Vacation data={data} setVac={vac} update={update} spend={spend} togglePay={(id)=>update(n=>{n.vacation.paychecks[id]=!n.vacation.paychecks[id]})} paycheck={paycheck} saved={vacSaved} goal={goal} days={vacDays}/>}
-  {screen==="joan"&&<Placeholder title="The Joan" text="🏟️ Marshall football bridge."/>}
-  {screen==="diamond"&&<Placeholder title="Diamond District" text="⚾ Fall baseball purpose."/>}
-  {screen==="family"&&<Card title="Family Park"><p className="muted">Zander gets prep. Isabella gets dedicated dad time.</p><Toggle active={data.family[ck]} onClick={()=>toggle("family",ck)}>Family moment logged</Toggle></Card>}
-  {screen==="hq"&&<Placeholder title="Sunshine TMT HQ" text="☀️ Betting cards, Diamond Watch, recaps, and records live here later."/>}
-  {screen==="progress"&&<Placeholder title="Progress Board" text={`Workout days and streaks will expand here. Hydration cashed days already live in Hydration Bay.`}/>}
-  {screen==="save"&&<Card title="Save Garage"><p className="notice">Generate before big updates.</p><button className="primary" onClick={()=>setCode(enc(data))}>Generate Save Code</button><textarea className="saveBox" value={code} onChange={e=>setCode(e.target.value)} placeholder="Save code"/><button onClick={()=>{try{const p=dec(code.trim());setData(p);localStorage.setItem("sc-v12",JSON.stringify(p));alert("Loaded")}catch{alert("Bad code")}}}>Load Save Code</button></Card>}
- </div>
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const CUP_OZ = 26;
+const WATER_GOAL_CUPS = 5;
+const START_WEIGHT = 210;
+const GOAL_WEIGHT = 198;
+const VACATION_GOAL = 1080;
+
+const routine = [
+  { id: "chest", name: "Chest Press", sets: 3, reps: 12, level: 8, goal: 12 },
+  { id: "triceps", name: "Tricep Pushdown", sets: 3, reps: 12, level: 5, goal: 7 },
+  { id: "lat", name: "Lat Pulldown", sets: 3, reps: 12, level: 6, goal: 8 },
+  { id: "legs", name: "Leg Curls", sets: 3, reps: 25, level: 6, goal: 8 },
+];
+
+const paychecks = [
+  { id: "d0713", date: "Jul 13", person: "Deanna", amount: 60 },
+  { id: "d0720", date: "Jul 20", person: "Deanna", amount: 60 },
+  { id: "j0723", date: "Jul 23", person: "Jordan", amount: 190 },
+  { id: "d0727", date: "Jul 27", person: "Deanna", amount: 60 },
+  { id: "d0803", date: "Aug 3", person: "Deanna", amount: 60 },
+  { id: "j0806", date: "Aug 6", person: "Jordan", amount: 190 },
+  { id: "d0810", date: "Aug 10", person: "Deanna", amount: 60 },
+];
+
+const budget = {
+  food: 425,
+  iceCream: 75,
+  gas: 80,
+  jordan: 200,
+  deanna: 200,
+  buffer: 100,
+};
+
+const blankData = {
+  water: {},
+  weights: {},
+  sets: {},
+  protein: {},
+  creatine: {},
+  walk: {},
+  family: {},
+  notes: {},
+  surprise: {
+    safeCash: 0,
+    extraEntries: [],
+    paychecks: {},
+    spent: {},
+    paid: {
+      hotel: true,
+      attractions: true,
+    },
+  },
+};
+
+function mergeLoaded(raw) {
+  return {
+    ...blankData,
+    ...raw,
+    surprise: {
+      ...blankData.surprise,
+      ...(raw?.surprise || {}),
+      paid: {
+        ...blankData.surprise.paid,
+        ...(raw?.surprise?.paid || {}),
+      },
+      paychecks: {
+        ...(raw?.surprise?.paychecks || {}),
+      },
+      spent: {
+        ...(raw?.surprise?.spent || {}),
+      },
+      extraEntries: Array.isArray(raw?.surprise?.extraEntries)
+        ? raw.surprise.extraEntries
+        : [],
+    },
+  };
 }
 
-function Vacation({data,setVac,spend,togglePay,paycheck,saved,goal,days}){
- const spent=data.vacation.spent||{},remaining=goal-Object.values(spent).reduce((s,v)=>s+Number(v||0),0);
- return <Card title="Vacation District"><p className="muted">Pigeon Forge • August 15 • 4 days • hotel paid • attractions bought before trip.</p><div className="score"><Box label="Days Left" val={days}/><Box label="Saved" val={money(saved)}/><Box label="Goal" val={money(goal)}/><Box label="Needed" val={money(Math.max(0,goal-saved))}/></div><Progress value={saved/goal*100}/><h3>Funding Sources</h3><div className="grid2"><label><span>Safe Cash Used Max $400</span><input type="number" value={data.vacation.safeCash||""} onChange={e=>setVac("safeCash",e.target.value)} placeholder="0"/></label><label><span>Extra Saved</span><input type="number" value={data.vacation.extra||""} onChange={e=>setVac("extra",e.target.value)} placeholder="0"/></label></div><div className="panel">🏦 Barclays protected: $2,500 current / $2,000 minimum ✅</div><h3>Paycheck Plan</h3>{paycheck.map(([id,date,person,amount])=><button key={id} className={`pay ${data.vacation.paychecks?.[id]?"checked":""}`} onClick={()=>togglePay(id)}><span>{date}</span><strong>{person}</strong><em>Save {money(amount)}</em>{data.vacation.paychecks?.[id]?" ✅":""}</button>)}<h3>Vacation Spending</h3><Budget icon={<Utensils/>} cat="food" name="Food" amount={425} spent={spent.food} spend={spend}/><Budget icon={<IceCreamBowl/>} cat="iceCream" name="Ice Cream" amount={75} spent={spent.iceCream} spend={spend}/><Budget icon={<Car/>} cat="gas" name="Gas" amount={80} spent={spent.gas} spend={spend}/><Budget icon={<WalletCards/>} cat="jordan" name="Jordan" amount={200} spent={spent.jordan} spend={spend}/><Budget icon={<WalletCards/>} cat="deanna" name="Deanna" amount={200} spent={spent.deanna} spend={spend}/><Budget icon={<Shield/>} cat="buffer" name="Buffer" amount={100} spent={spent.buffer} spend={spend}/><div className="cash">Vacation Cash Remaining: {money(Math.max(0,remaining))}</div></Card>
+function safeLoad() {
+  try {
+    const current = localStorage.getItem("sunshine-city-v13a");
+    if (current) return mergeLoaded(JSON.parse(current));
+
+    const legacy = localStorage.getItem("sc-v12");
+    if (legacy) {
+      const old = JSON.parse(legacy);
+      return mergeLoaded({
+        ...old,
+        surprise: {
+          safeCash: old?.vacation?.safeCash || 0,
+          extraEntries: old?.vacation?.extra
+            ? [{ id: Date.now(), amount: Number(old.vacation.extra), note: "Imported extra savings", date: new Date().toLocaleDateString() }]
+            : [],
+          paychecks: old?.vacation?.paychecks || {},
+          spent: old?.vacation?.spent || {},
+          paid: { hotel: true, attractions: true },
+        },
+      });
+    }
+  } catch {
+    return blankData;
+  }
+  return blankData;
 }
-function Budget({icon,cat,name,amount,spent=0,spend}){const[amt,setAmt]=useState("");const rem=amount-Number(spent||0);return <div className="budget"><div className="budgetTop">{icon}<div><strong>{name}</strong><span>{money(rem)} left of {money(amount)}</span></div></div><Progress value={Number(spent||0)/amount*100}/><div className="grid2"><input type="number" value={amt} onChange={e=>setAmt(e.target.value)} placeholder="Spend"/><button onClick={()=>{spend(cat,amt);setAmt("")}}>Log</button></div></div>}
-function Card({title,children,special}){return <section className={`card ${special?"special":""}`}><p className="kicker">SUNSHINE CITY</p><h2>{title}</h2>{children}</section>}
-function Placeholder({title,text}){return <Card title={title}><div className="panel">{text}</div></Card>}
-function Stat({label,value,hot}){return <div className={`stat ${hot?"hot":""}`}><strong>{value}</strong><span>{label}</span></div>}
-function Progress({value}){return <div className="bar"><div className="fill" style={{width:`${Math.max(0,Math.min(100,value||0))}%`}}/></div>}
-function Toggle({active,onClick,children}){return <button className={active?"checked":""} onClick={onClick}>{children} {active?"✅":""}</button>}
-function Box({label,val}){return <div><span>{label}</span><strong>{val}</strong></div>}
+
+function money(value) {
+  return `$${Number(value || 0).toFixed(0)}`;
+}
+
+function encodeData(data) {
+  return btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+}
+
+function decodeData(code) {
+  return JSON.parse(decodeURIComponent(escape(atob(code))));
+}
+
+export default function App() {
+  const [screen, setScreen] = useState("city");
+  const [data, setData] = useState(safeLoad);
+  const [saveCode, setSaveCode] = useState("");
+
+  const today = useMemo(() => {
+    const now = new Date();
+    const diff = Math.floor(
+      (new Date(now.getFullYear(), now.getMonth(), now.getDate()) - START) / 86400000
+    );
+    const safe = Math.max(0, Math.min(diff, 76));
+    return {
+      week: Math.floor(safe / 7),
+      day: safe % 7,
+      missionDay: safe + 1,
+    };
+  }, []);
+
+  const currentKey = `w${today.week}-d${today.day}`;
+  const weightKey = (type) => `w${today.week}-${type}`;
+
+  const daysLeft = Math.max(0, Math.ceil((END - new Date()) / 86400000));
+  const vacationDays = Math.max(0, Math.ceil((VACATION - new Date()) / 86400000));
+
+  const cups = data.water[currentKey] || 0;
+  const waterOz = cups * CUP_OZ;
+  const hydrationDone = cups >= WATER_GOAL_CUPS;
+
+  const latestWeight = Object.values(data.weights).map(Number).filter(Boolean).at(-1);
+  const poundsLost = latestWeight ? START_WEIGHT - latestWeight : 0;
+
+  const completedSets = routine.reduce((sum, exercise) => {
+    return sum + [1, 2, 3].filter((setNumber) => data.sets[`${currentKey}-${exercise.id}-${setNumber}`]).length;
+  }, 0);
+  const goalLineDone = completedSets === 12;
+
+  const paycheckSaved = paychecks
+    .filter((item) => data.surprise.paychecks[item.id])
+    .reduce((sum, item) => sum + item.amount, 0);
+
+  const extraSaved = data.surprise.extraEntries.reduce(
+    (sum, entry) => sum + Number(entry.amount || 0),
+    0
+  );
+
+  const totalSaved = paycheckSaved + Number(data.surprise.safeCash || 0) + extraSaved;
+  const totalSpent = Object.values(data.surprise.spent).reduce(
+    (sum, value) => sum + Number(value || 0),
+    0
+  );
+
+  const cityPowerChecks = [
+    hydrationDone,
+    goalLineDone,
+    Boolean(data.protein[currentKey]),
+    Boolean(data.creatine[currentKey]),
+    Boolean(data.walk[currentKey]),
+  ];
+  const cityPower = cityPowerChecks.filter(Boolean).length;
+
+  function update(mutator) {
+    setData((previous) => {
+      const next = structuredClone(previous);
+      mutator(next);
+      localStorage.setItem("sunshine-city-v13a", JSON.stringify(next));
+      return next;
+    });
+  }
+
+  function toggle(section, key) {
+    update((next) => {
+      next[section][key] = !next[section][key];
+    });
+  }
+
+  function addWater(amount) {
+    update((next) => {
+      next.water[currentKey] = Math.max(0, (next.water[currentKey] || 0) + amount);
+    });
+  }
+
+  function setWeight(type, value) {
+    update((next) => {
+      next.weights[weightKey(type)] = value;
+    });
+  }
+
+  function addExtraSaving(amount, note) {
+    const numeric = Number(amount);
+    if (!numeric || numeric <= 0) return;
+
+    update((next) => {
+      next.surprise.extraEntries.unshift({
+        id: Date.now(),
+        amount: numeric,
+        note: note.trim() || "Extra savings",
+        date: new Date().toLocaleDateString(),
+      });
+    });
+  }
+
+  function removeExtraSaving(id) {
+    update((next) => {
+      next.surprise.extraEntries = next.surprise.extraEntries.filter((entry) => entry.id !== id);
+    });
+  }
+
+  function exportCode() {
+    setSaveCode(encodeData(data));
+  }
+
+  function importCode() {
+    try {
+      const parsed = mergeLoaded(decodeData(saveCode.trim()));
+      setData(parsed);
+      localStorage.setItem("sunshine-city-v13a", JSON.stringify(parsed));
+      alert("Save code loaded.");
+    } catch {
+      alert("That save code didn't work.");
+    }
+  }
+
+  const districts = [
+    ["mission", "Mission Control", Home, `${cityPower}/5 city power`, cityPower >= 3],
+    ["goal", "The Goal Line", Dumbbell, `${completedSets}/12 sets`, goalLineDone],
+    ["hydration", "Hydration Bay", Droplets, `${waterOz} oz`, hydrationDone],
+    ["film", "Film Room", Scale, "Wednesday + Saturday review", Boolean(data.weights[weightKey("wed")] || data.weights[weightKey("sat")])],
+    ["conditioning", "Conditioning Field", Landmark, "Mileage tracker coming next", Boolean(data.walk[currentKey])],
+    ["surprise", "The Surprise", Gift, `${vacationDays} days to Pigeon Forge`, totalSaved >= 680],
+    ["clubhouse", "The Clubhouse", CircleDot, "Baseball headquarters", false],
+    ["family", "Family Park", Heart, "Dad mission", Boolean(data.family[currentKey])],
+    ["hq", "Sunshine TMT HQ", Sun, "Brand command center", false],
+    ["progress", "Progress Board", Trophy, "Season stats", false],
+    ["save", "Save Garage", Save, "Backup code", false],
+  ];
+
+  return (
+    <div className="app">
+      <div className="glow glowPink" />
+      <div className="glow glowCyan" />
+
+      <header className={`hero ${cityPower === 5 ? "heroLit" : ""}`}>
+        <div className="skyline" />
+        <p className="kicker">SUNSHINE CITY LIMITS</p>
+        <h1>Sunshine City</h1>
+        <p className="tagline">Training Complex for Life</p>
+
+        <div className="versionBadge">v1.3A • Training Complex Update</div>
+
+        <div className="heroStats">
+          <Stat label="mission day" value={today.missionDay} />
+          <Stat label="days left" value={daysLeft} hot />
+          <Stat label="city power" value={`${cityPower}/5`} />
+        </div>
+      </header>
+
+      {screen !== "city" && (
+        <button className="backButton" onClick={() => setScreen("city")}>
+          ← Back to City Map
+        </button>
+      )}
+
+      {screen === "city" && (
+        <>
+          <Card special title={cityPower === 5 ? "City fully lit." : "Build the city today."}>
+            <p className="muted">
+              Hydration {cups}/5 • Goal Line {completedSets}/12 • The Surprise {money(totalSaved)}/{money(VACATION_GOAL)}
+            </p>
+            <Progress value={cityPower * 20} />
+          </Card>
+
+          <section className="cityMap">
+            {districts.map(([id, name, Icon, description, lit]) => (
+              <button
+                key={id}
+                className={`district ${lit ? "lit" : ""}`}
+                onClick={() => setScreen(id)}
+              >
+                <Building2 className="buildingGhost" size={54} />
+                <Icon className="districtIcon" size={28} />
+                <span>{name}</span>
+                <small>{description}</small>
+              </button>
+            ))}
+          </section>
+        </>
+      )}
+
+      {screen === "mission" && (
+        <Card title={`Mission Control • ${DAYS[today.day]} • Week ${today.week + 1}`}>
+          <div className="scoreGrid">
+            <Score label="Weight" value={`${latestWeight || START_WEIGHT} lb`} />
+            <Score label="Lost" value={`${poundsLost.toFixed(1)} lb`} />
+            <Score label="Water" value={`${cups}/5`} />
+            <Score label="Goal Line" value={`${completedSets}/12`} />
+          </div>
+
+          <h3>Daily Checks</h3>
+          <div className="twoColumn">
+            <Toggle active={data.walk[currentKey]} onClick={() => toggle("walk", currentKey)}>Conditioning</Toggle>
+            <Toggle active={data.protein[currentKey]} onClick={() => toggle("protein", currentKey)}>Protein</Toggle>
+            <Toggle active={data.creatine[currentKey]} onClick={() => toggle("creatine", currentKey)}>Creatine</Toggle>
+            <Toggle active={data.family[currentKey]} onClick={() => toggle("family", currentKey)}>Family</Toggle>
+          </div>
+
+          <h3>Coach Notes</h3>
+          <textarea
+            value={data.notes[currentKey] || ""}
+            onChange={(event) => update((next) => { next.notes[currentKey] = event.target.value; })}
+            placeholder="Quick note..."
+          />
+        </Card>
+      )}
+
+      {screen === "goal" && (
+        <Card title="The Goal Line">
+          <p className="muted">
+            Complete all 12 sets and punch it into the end zone.
+          </p>
+          <Progress value={(completedSets / 12) * 100} />
+
+          {routine.map((exercise) => (
+            <div className="exerciseCard" key={exercise.id}>
+              <h3>{exercise.name}</h3>
+              <p className="muted">
+                3×{exercise.reps} • Current Level {exercise.level} • Goal {exercise.goal}
+              </p>
+
+              <div className="setRow">
+                {[1, 2, 3].map((setNumber) => {
+                  const setKey = `${currentKey}-${exercise.id}-${setNumber}`;
+                  const complete = Boolean(data.sets[setKey]);
+
+                  return (
+                    <button
+                      key={setKey}
+                      className={complete ? "setDone" : "setButton"}
+                      onClick={() => toggle("sets", setKey)}
+                    >
+                      {setNumber === 3 ? "Goal Line" : `Set ${setNumber}`} {complete ? "✅" : ""}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+
+          {goalLineDone && (
+            <div className="cashBanner">🏈 TOUCHDOWN — THE GOAL LINE COMPLETE</div>
+          )}
+        </Card>
+      )}
+
+      {screen === "hydration" && (
+        <Card title="Hydration Bay">
+          <div className="waterTower">
+            <div
+              className="waterFill"
+              style={{ height: `${Math.min(100, (cups / WATER_GOAL_CUPS) * 100)}%` }}
+            />
+            <span>{waterOz} oz</span>
+          </div>
+
+          <p className="muted">{cups} Sunshine cup(s) × 26 oz</p>
+          <Progress value={(waterOz / 130) * 100} />
+
+          <div className="twoColumn">
+            <button className="primary" onClick={() => addWater(1)}>+26 oz</button>
+            <button onClick={() => addWater(-1)}>-26 oz</button>
+          </div>
+
+          {hydrationDone && (
+            <div className="cashBanner">🏆 HYDRATION BAY CASHED</div>
+          )}
+        </Card>
+      )}
+
+      {screen === "film" && (
+        <Card title="Film Room">
+          <p className="muted">
+            Wednesday and Saturday are review days. The scale is feedback, not judgment.
+          </p>
+
+          <div className="twoColumn">
+            <label>
+              <span>Wednesday Review</span>
+              <input
+                type="number"
+                step="0.1"
+                value={data.weights[weightKey("wed")] || ""}
+                onChange={(event) => setWeight("wed", event.target.value)}
+                placeholder="Weight"
+              />
+            </label>
+
+            <label>
+              <span>Saturday Review</span>
+              <input
+                type="number"
+                step="0.1"
+                value={data.weights[weightKey("sat")] || ""}
+                onChange={(event) => setWeight("sat", event.target.value)}
+                placeholder="Weight"
+              />
+            </label>
+          </div>
+
+          <h3>Film Review</h3>
+          <p>Start: {START_WEIGHT} lb</p>
+          <p>Latest: {latestWeight || "—"} lb</p>
+          <p>Goal: {GOAL_WEIGHT} lb</p>
+          <p>Season change: {poundsLost.toFixed(1)} lb</p>
+          <Progress value={(poundsLost / (START_WEIGHT - GOAL_WEIGHT)) * 100} />
+        </Card>
+      )}
+
+      {screen === "conditioning" && (
+        <Placeholder
+          title="Conditioning Field"
+          text="🏈 Mileage tracking is the next construction phase. For now, today’s conditioning check still counts toward City Power."
+        />
+      )}
+
+      {screen === "surprise" && (
+        <Surprise
+          data={data}
+          update={update}
+          addExtraSaving={addExtraSaving}
+          removeExtraSaving={removeExtraSaving}
+          totalSaved={totalSaved}
+          paycheckSaved={paycheckSaved}
+          extraSaved={extraSaved}
+          totalSpent={totalSpent}
+          vacationDays={vacationDays}
+        />
+      )}
+
+      {screen === "clubhouse" && (
+        <Placeholder
+          title="The Clubhouse"
+          text="⚾ Baseball headquarters is open. Zander’s schedule, milestones, and trophy case come in a future update."
+        />
+      )}
+
+      {screen === "family" && (
+        <Card title="Family Park">
+          <p className="muted">
+            Zander gets prep and shared sports moments. Isabella gets dedicated dad time in her world.
+          </p>
+          <Toggle active={data.family[currentKey]} onClick={() => toggle("family", currentKey)}>
+            Family moment logged
+          </Toggle>
+        </Card>
+      )}
+
+      {screen === "hq" && (
+        <Placeholder title="Sunshine TMT HQ" text="☀️ Brand command center coming later." />
+      )}
+
+      {screen === "progress" && (
+        <Placeholder title="Progress Board" text="📊 City Lights Calendar and streak tracking arrive in v1.3B." />
+      )}
+
+      {screen === "save" && (
+        <Card title="Save Garage">
+          <p className="notice">
+            Generate a save code before major updates.
+          </p>
+          <button className="primary" onClick={exportCode}>Generate Save Code</button>
+          <textarea
+            className="saveBox"
+            value={saveCode}
+            onChange={(event) => setSaveCode(event.target.value)}
+            placeholder="Generate or paste save code here"
+          />
+          <button onClick={importCode}>Load Save Code</button>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function Surprise({
+  data,
+  update,
+  addExtraSaving,
+  removeExtraSaving,
+  totalSaved,
+  paycheckSaved,
+  extraSaved,
+  totalSpent,
+  vacationDays,
+}) {
+  const [extraAmount, setExtraAmount] = useState("");
+  const [extraNote, setExtraNote] = useState("");
+
+  const remainingCash = Math.max(0, VACATION_GOAL - totalSpent);
+
+  return (
+    <Card title="The Surprise">
+      <p className="muted">
+        Pigeon Forge • August 15 • 4 days • Team Craig
+      </p>
+
+      <div className="scoreGrid">
+        <Score label="Days Left" value={vacationDays} />
+        <Score label="Saved" value={money(totalSaved)} />
+        <Score label="Goal" value={money(VACATION_GOAL)} />
+        <Score label="Needed" value={money(Math.max(0, VACATION_GOAL - totalSaved))} />
+      </div>
+
+      <Progress value={(totalSaved / VACATION_GOAL) * 100} />
+
+      <h3>Already Paid</h3>
+      <div className="paidGrid">
+        <Toggle
+          active={data.surprise.paid.hotel}
+          onClick={() => update((next) => {
+            next.surprise.paid.hotel = !next.surprise.paid.hotel;
+          })}
+        >
+          Hotel
+        </Toggle>
+
+        <Toggle
+          active={data.surprise.paid.attractions}
+          onClick={() => update((next) => {
+            next.surprise.paid.attractions = !next.surprise.paid.attractions;
+          })}
+        >
+          Attractions $215
+        </Toggle>
+      </div>
+
+      <h3>Funding Sources</h3>
+      <div className="fundingGrid">
+        <div className="fundingCard">
+          <span>Planned Paychecks</span>
+          <strong>{money(paycheckSaved)}</strong>
+        </div>
+        <div className="fundingCard">
+          <span>Extra Savings</span>
+          <strong>{money(extraSaved)}</strong>
+        </div>
+      </div>
+
+      <label className="singleField">
+        <span>Safe Cash Used — Maximum $400</span>
+        <input
+          type="number"
+          max="400"
+          value={data.surprise.safeCash || ""}
+          onChange={(event) => update((next) => {
+            next.surprise.safeCash = Math.min(400, Math.max(0, Number(event.target.value || 0)));
+          })}
+          placeholder="0"
+        />
+      </label>
+
+      <div className="notice">
+        🏦 Barclays protected: $2,500 current / $2,000 minimum
+      </div>
+
+      <h3>Paycheck Plan</h3>
+      {paychecks.map((item) => {
+        const complete = Boolean(data.surprise.paychecks[item.id]);
+        return (
+          <button
+            key={item.id}
+            className={`paycheck ${complete ? "checked" : ""}`}
+            onClick={() => update((next) => {
+              next.surprise.paychecks[item.id] = !next.surprise.paychecks[item.id];
+            })}
+          >
+            <span>{item.date}</span>
+            <strong>{item.person}</strong>
+            <em>Save {money(item.amount)}</em>
+            {complete ? <CheckCircle2 size={18} /> : null}
+          </button>
+        );
+      })}
+
+      <h3>Extra Savings Ledger</h3>
+      <div className="extraEntryForm">
+        <input
+          type="number"
+          value={extraAmount}
+          onChange={(event) => setExtraAmount(event.target.value)}
+          placeholder="Amount"
+        />
+        <input
+          type="text"
+          value={extraNote}
+          onChange={(event) => setExtraNote(event.target.value)}
+          placeholder="Source or note"
+        />
+        <button
+          className="primary"
+          onClick={() => {
+            addExtraSaving(extraAmount, extraNote);
+            setExtraAmount("");
+            setExtraNote("");
+          }}
+        >
+          <PlusCircle size={17} /> Add Extra Savings
+        </button>
+      </div>
+
+      <div className="ledger">
+        {data.surprise.extraEntries.length === 0 ? (
+          <p className="muted">No extra savings logged yet.</p>
+        ) : (
+          data.surprise.extraEntries.map((entry) => (
+            <div className="ledgerRow" key={entry.id}>
+              <div>
+                <strong>+{money(entry.amount)}</strong>
+                <span>{entry.note}</span>
+                <small>{entry.date}</small>
+              </div>
+              <button className="iconButton" onClick={() => removeExtraSaving(entry.id)}>
+                <Trash2 size={17} />
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+
+      <h3>Vacation Spending</h3>
+      <BudgetCard icon={<Utensils />} name="Food" category="food" amount={budget.food} data={data} update={update} />
+      <BudgetCard icon={<IceCreamBowl />} name="Ice Cream" category="iceCream" amount={budget.iceCream} data={data} update={update} />
+      <BudgetCard icon={<Car />} name="Gas" category="gas" amount={budget.gas} data={data} update={update} />
+      <BudgetCard icon={<WalletCards />} name="Jordan" category="jordan" amount={budget.jordan} data={data} update={update} />
+      <BudgetCard icon={<WalletCards />} name="Deanna" category="deanna" amount={budget.deanna} data={data} update={update} />
+      <BudgetCard icon={<Shield />} name="Buffer" category="buffer" amount={budget.buffer} data={data} update={update} />
+
+      <div className="cashBanner">
+        Vacation Cash Remaining: {money(remainingCash)}
+      </div>
+    </Card>
+  );
+}
+
+function BudgetCard({ icon, name, category, amount, data, update }) {
+  const [spendAmount, setSpendAmount] = useState("");
+  const spent = Number(data.surprise.spent[category] || 0);
+  const remaining = amount - spent;
+
+  return (
+    <div className="budgetCard">
+      <div className="budgetHeader">
+        {icon}
+        <div>
+          <strong>{name}</strong>
+          <span>{money(remaining)} left of {money(amount)}</span>
+        </div>
+      </div>
+
+      <Progress value={(spent / amount) * 100} />
+
+      <div className="twoColumn">
+        <input
+          type="number"
+          value={spendAmount}
+          onChange={(event) => setSpendAmount(event.target.value)}
+          placeholder="Spend amount"
+        />
+        <button
+          onClick={() => {
+            const numeric = Number(spendAmount);
+            if (!numeric || numeric <= 0) return;
+            update((next) => {
+              next.surprise.spent[category] = Math.max(
+                0,
+                Number(next.surprise.spent[category] || 0) + numeric
+              );
+            });
+            setSpendAmount("");
+          }}
+        >
+          Log Spend
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Card({ title, children, special }) {
+  return (
+    <section className={`card ${special ? "specialCard" : ""}`}>
+      <p className="kicker">SUNSHINE CITY</p>
+      <h2>{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function Placeholder({ title, text }) {
+  return (
+    <Card title={title}>
+      <div className="notice">{text}</div>
+    </Card>
+  );
+}
+
+function Stat({ label, value, hot }) {
+  return (
+    <div className={`stat ${hot ? "hot" : ""}`}>
+      <strong>{value}</strong>
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function Score({ label, value }) {
+  return (
+    <div className="scoreCard">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function Progress({ value }) {
+  return (
+    <div className="bar">
+      <div
+        className="fill"
+        style={{ width: `${Math.max(0, Math.min(100, value || 0))}%` }}
+      />
+    </div>
+  );
+}
+
+function Toggle({ active, onClick, children }) {
+  return (
+    <button className={active ? "checked" : ""} onClick={onClick}>
+      {children} {active ? "✅" : ""}
+    </button>
+  );
+}
