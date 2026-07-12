@@ -108,7 +108,8 @@ export default function App(){
   const hydrationDone=cups>=WATER_GOAL;
 
   const completedSets=routine.reduce((sum,ex)=>sum+[1,2,3].filter(s=>data.sets[`${weekKey}-${ex.id}-${s}`]).length,0);
-  const goalLineDone=completedSets===12;
+const goalLineDone =
+  completedSets === 12 || practiceStatus === "recovery";
 
   const conditioning=data.conditioning[todayDateKey]||{};
   const totalMiles=Number(conditioning.total||0);
