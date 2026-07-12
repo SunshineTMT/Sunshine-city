@@ -87,7 +87,6 @@ const encode = d => btoa(unescape(encodeURIComponent(JSON.stringify(d))));
 const decode = c => JSON.parse(decodeURIComponent(escape(atob(c))));
 
 export default function App(){
-  const [practiceStatus, setPracticeStatus] = useState("full");
   const [screen,setScreen]=useState("city");
   const [data,setData]=useState(load);
   const [saveCode,setSaveCode]=useState("");
@@ -281,48 +280,6 @@ export default function App(){
 
     {screen==="goal"&&<Card title="The Goal Line">
       <p className="muted">Complete all 12 sets and punch it into the end zone.</p>
-      <div style={{
-  margin:"12px 0",
-  padding:"12px",
-  borderRadius:"12px",
-  border:"1px solid rgba(0,255,255,.25)"
-}}>
-  <strong>🏈 Practice Status</strong>
-
-  <div style={{marginTop:"10px", display:"flex", gap:"10px"}}>
- <button
-  onClick={() => setPracticeStatus("full")}
-  style={{
-    background:
-      practiceStatus === "full"
-        ? "linear-gradient(135deg,#00eaff,#ff4fd8)"
-        : "",
-    boxShadow:
-      practiceStatus === "full"
-        ? "0 0 18px rgba(0,234,255,.65)"
-        : "none"
-  }}
->
-  🏈 Full Practice
-</button>
-
-<button
-  onClick={() => setPracticeStatus("recovery")}
-  style={{
-    background:
-      practiceStatus === "recovery"
-        ? "linear-gradient(135deg,#7c3cff,#d946ef)"
-        : "",
-    boxShadow:
-      practiceStatus === "recovery"
-        ? "0 0 18px rgba(168,85,247,.75)"
-        : "none"
-  }}
->
-  🛡️ Recovery Day
-</button>
-  </div>
-</div>
       <Progress value={completedSets/12*100}/>
       {routine.map(ex=><div className="exerciseCard" key={ex.id}>
         <h3>{ex.name}</h3>
