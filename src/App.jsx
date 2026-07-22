@@ -49,14 +49,14 @@ const routine = [
     name: "Tricep Pushdown",
     reps: 12,
     sets: 3,
-    level: 7
+    level: 5
   },
   {
     id: "lat",
     name: "Lat Pulldown",
     reps: 12,
     sets: 3,
-    level: 7
+    level: 6
   },
   {
     id: "legs",
