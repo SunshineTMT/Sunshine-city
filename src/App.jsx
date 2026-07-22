@@ -6,7 +6,7 @@ import {
   PlusCircle, CheckCircle2, Utensils, Car, IceCreamBowl, WalletCards, Shield
 } from "lucide-react";
 
-const START = new Date("2026-07-06T00:00:00");
+const START = new Date("2026-07-21T00:00:00");
 const END = new Date("2026-09-20T00:00:00");
 const VACATION = new Date("2026-08-15T00:00:00");
 const CUP_OZ = 26, WATER_GOAL = 5, START_WEIGHT = 210, GOAL_WEIGHT = 198, VACATION_GOAL = 1080;
