@@ -258,7 +258,7 @@ completedSets === 21 || practiceStatus === "recovery";
 
   const districtDefs=[
     ["mission","Mission Control",Home,`${cityPower}/5 city power`,cityPower>=3,"cyan"],
-    ["goal","The Goal Line",Dumbbell,`${completedSets}/12 sets`,goalLineDone,"orange"],
+    ["goal","The Goal Line",Dumbbell,`${completedSets}/21 sets`,goalLineDone,"orange"],
     ["hydration","Hydration Bay",Droplets,`${waterOz} oz`,hydrationDone,"blue"],
     ["conditioning","Conditioning Field",Footprints,`${intentionalMiles.toFixed(1)} intentional mi`,conditioningDone,"green"],
     ["film","Film Room",Scale,"Wednesday + Saturday review",Boolean(data.weights[weightKey("wed")]||data.weights[weightKey("sat")]),"purple"],
