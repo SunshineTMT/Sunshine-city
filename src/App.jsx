@@ -13,10 +13,58 @@ const CUP_OZ = 26, WATER_GOAL = 5, START_WEIGHT = 210, GOAL_WEIGHT = 198, VACATI
 const DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 
 const routine = [
-  { id:"chest", name:"Chest Press", reps:12, level:8, goal:12 },
-  { id:"triceps", name:"Tricep Pushdown", reps:12, level:5, goal:7 },
-  { id:"lat", name:"Lat Pulldown", reps:12, level:6, goal:8 },
-  { id:"legs", name:"Leg Curls", reps:25, level:6, goal:8 },
+  {
+    id: "chestfly",
+    name: "Chest Fly",
+    reps: 12,
+    sets: 3,
+    level: 3
+  },
+  {
+    id: "ab",
+    name: "Ab Crunch",
+    reps: 12,
+    sets: 3,
+    level: 4
+  },
+  {
+    id: "planks",
+    name: "Planks",
+    reps: 20,
+    sets: 3,
+    level: 1,
+
+  
+  },
+
+    {
+    id: "chest",
+    name: "Chest Press",
+    reps: 12,
+    sets: 3,
+    level: 8
+  },
+  {
+    id: "triceps",
+    name: "Tricep Pushdown",
+    reps: 12,
+    sets: 3,
+    level: 7
+  },
+  {
+    id: "lat",
+    name: "Lat Pulldown",
+    reps: 12,
+    sets: 3,
+    level: 7
+  },
+  {
+    id: "legs",
+    name: "Leg Curl",
+    reps: 13,
+    sets: 3,
+    level: 7
+  }
 ];
 
 const paychecks = [
@@ -108,9 +156,9 @@ export default function App(){
   const hydrationDone=cups>=WATER_GOAL;
 
   const completedSets=routine.reduce((sum,ex)=>sum+[1,2,3].filter(s=>data.sets[`${weekKey}-${ex.id}-${s}`]).length,0);
-const goalLineDone =
-  completedSets === 12 || practiceStatus === "recovery";
 
+ const goalLineDone =
+completedSets === 21 || practiceStatus === "recovery";
   const conditioning=data.conditioning[todayDateKey]||{};
   const totalMiles=Number(conditioning.total||0);
   const intentionalMiles=Number(conditioning.intentional||0);
@@ -324,10 +372,12 @@ const goalLineDone =
 </button>
   </div>
 </div>
-      <Progress value={completedSets/12*100}/>
+      <Progress value={(completedSets/21)*100}/>
       {routine.map(ex=><div className="exerciseCard" key={ex.id}>
         <h3>{ex.name}</h3>
-        <p className="muted">3×{ex.reps} • Current Level {ex.level} • Goal {ex.goal}</p>
+        <p className="muted">
+ {ex.sets}× {ex.reps} • Current Level {ex.level}
+</p>
         <div className="setRow">{[1,2,3].map(s=>{
           const key=`${weekKey}-${ex.id}-${s}`,done=Boolean(data.sets[key]);
           return <button key={key} className={done?"setDone":"setButton"} onClick={()=>toggle("sets",key)}>
