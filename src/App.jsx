@@ -18,19 +18,19 @@ const routine = [
     name: "Chest Fly",
     reps: 12,
     sets: 3,
-    level: 3
+    level: 4
   },
   {
     id: "ab",
     name: "Ab Crunch",
     reps: 12,
     sets: 3,
-    level: 4
+    level: 2
   },
   {
     id: "planks",
     name: "Planks",
-    reps: 20,
+    reps: 25,
     sets: 3,
     level: 1,
 
@@ -42,7 +42,7 @@ const routine = [
     name: "Chest Press",
     reps: 12,
     sets: 3,
-    level: 8
+    level: 9
   },
   {
     id: "triceps",
@@ -56,7 +56,7 @@ const routine = [
     name: "Lat Pulldown",
     reps: 12,
     sets: 3,
-    level: 6
+    level: 7
   },
   {
     id: "legs",
@@ -135,11 +135,12 @@ const encode = d => btoa(unescape(encodeURIComponent(JSON.stringify(d))));
 const decode = c => JSON.parse(decodeURIComponent(escape(atob(c))));
 
 export default function App(){
+  
   const [practiceStatus, setPracticeStatus] = useState("full");
   const [screen,setScreen]=useState("city");
   const [data,setData]=useState(load);
   const [saveCode,setSaveCode]=useState("");
-
+const [selectedDay, setSelectedDay] = useState(null);
   const today = useMemo(()=>{
     const n=new Date();
     const diff=Math.floor((new Date(n.getFullYear(),n.getMonth(),n.getDate())-START)/86400000);
@@ -174,7 +175,7 @@ completedSets === 21 || practiceStatus === "recovery";
   ];
   const cityPower=checks.filter(Boolean).length;
 
-  const latestWeight=Object.values(data.weights).map(Number).filter(Boolean).at(-1);
+  const latestWeight = Math.min(...Object.values(data.weights).map(Number).filter(n => !isNaN(n) && n > 0));
   const poundsLost=latestWeight?START_WEIGHT-latestWeight:0;
 
   const paycheckSaved=paychecks.filter(p=>data.surprise.paychecks[p.id]).reduce((s,p)=>s+p.amount,0);
@@ -451,10 +452,20 @@ completedSets === 21 || practiceStatus === "recovery";
           const result=getDayScore(dateKey(d));
           const score=result?.score??0;
           const isToday=dateKey(d)===todayDateKey;
-          return <div key={dateKey(d)} className={`calendarDay score-${score} ${isToday?"today":""}`}>
-            <strong>{d.getDate()}</strong><span>{score}/5</span>
-          </div>
-        })}
+          const dayKey = dateKey(d);
+          return (
+  <div
+    key={dayKey}
+    className={`calendarDay score-${score} ${isToday ? "today" : ""}`}
+    onClick={() => {
+  setSelectedDay(dayKey);
+  alert(dayKey);
+}}
+  >
+  <strong>{d.getDate()}</strong><span>{score}/5</span>
+     </div>
+  );
+})}
       </div>
       <div className="legend">
         <span>🌟 5/5 Fully Lit</span><span>🟢 4/5</span><span>🔵 3/5</span><span>⚪ 0–2/5</span>
