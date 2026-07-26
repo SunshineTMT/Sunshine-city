@@ -82,6 +82,7 @@ const budgets = { food:425, iceCream:75, gas:80, jordan:200, deanna:200, buffer:
 const blank = {
   water:{}, weights:{}, sets:{}, protein:{}, creatine:{}, family:{}, notes:{},
   conditioning:{},
+conditioningWeekStart:null,
   surprise:{
     safeCash:0, extraEntries:[], paychecks:{}, spent:{},
     paid:{hotel:true,attractions:true}
@@ -227,18 +228,27 @@ completedSets === 21 || practiceStatus === "recovery";
     return {current,longest,total};
   },[data,today.date]);
 
-  const weeklyMiles=useMemo(()=>{
-    const monday=new Date(today.date);
-    monday.setDate(monday.getDate()-today.day);
-    let total=0,intentional=0;
-    for(let i=0;i<7;i++){
-      const d=new Date(monday);d.setDate(d.getDate()+i);
-      const entry=data.conditioning[dateKey(d)]||{};
-      total+=Number(entry.total||0); intentional+=Number(entry.intentional||0);
-    }
-    return {total,intentional};
-  },[data,today]);
+  const weeklyMiles = useMemo(() => {
+  const start = data.conditioningWeekStart
+    ? new Date(data.conditioningWeekStart)
+    : new Date(today.date);
 
+  let total = 0;
+  let intentional = 0;
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+
+    const entry = data.conditioning[dateKey(d)] || {};
+
+    total += Number(entry.total || 0);
+    intentional += Number(entry.intentional || 0);
+  }
+
+  return { total, intentional };
+}, [data, today.date]);
+  
   const lifetimeMiles=Object.values(data.conditioning).reduce((acc,e)=>({
     total:acc.total+Number(e.total||0),
     intentional:acc.intentional+Number(e.intentional||0)
@@ -404,26 +414,39 @@ completedSets === 21 || practiceStatus === "recovery";
     </Card>}
 
     {screen==="conditioning"&&<Card title="Conditioning Field">
-      <p className="muted">Log total miles at day’s end and separate the miles you earned intentionally.</p>
+      <p className="muted">Log your total daily steps and separate the steps you earned intentionally.</p>
+      
       <div className="scoreGrid">
-        <Score label="Total Miles" value={totalMiles.toFixed(1)}/>
-        <Score label="Intentional" value={intentionalMiles.toFixed(1)}/>
-        <Score label="Activity" value={activityMiles.toFixed(1)}/>
+        <Score label="Total Steps" value={totalMiles}/>
+        <Score label="Intentional Steps" value={intentionalMiles}/>
+        <Score label="Activity Steps" value={activityMiles}/>
         <Score label="Streak" value={`${streaks.current} days`}/>
       </div>
       <div className="twoColumn">
-        <label><span>Total Daily Miles</span><input type="number" step="0.1" value={conditioning.total||""} onChange={e=>update(n=>{n.conditioning[todayDateKey]={...(n.conditioning[todayDateKey]||{}),total:e.target.value}})} placeholder="0.0"/></label>
-        <label><span>Intentional Miles</span><input type="number" step="0.1" value={conditioning.intentional||""} onChange={e=>update(n=>{n.conditioning[todayDateKey]={...(n.conditioning[todayDateKey]||{}),intentional:e.target.value}})} placeholder="0.0"/></label>
+        <label><span>Total Daily Steps</span><input type="number" step="1" value={conditioning.total||""} onChange={e=>update(n=>{n.conditioning[todayDateKey]={...(n.conditioning[todayDateKey]||{}),total:e.target.value}})} placeholder="0.0"/></label>
+        <label><span>Intentional Steps</span><input type="number" step="1" value={conditioning.intentional||""} onChange={e=>update(n=>{n.conditioning[todayDateKey]={...(n.conditioning[todayDateKey]||{}),intentional:e.target.value}})} placeholder="0.0"/></label>
       </div>
+      <div style={{margin:"12px 0"}}>
+  <button
+    className="primary"
+    onClick={() =>
+      update(n => {
+        n.conditioningWeekStart = todayDateKey;
+      })
+    }
+  >
+    🏁 Begin New Conditioning Week
+  </button>
+</div>
       <h3>This Week</h3>
       <div className="scoreGrid">
-        <Score label="Total" value={weeklyMiles.total.toFixed(1)}/>
-        <Score label="Intentional" value={weeklyMiles.intentional.toFixed(1)}/>
+        <Score label="Total Steps" value={weeklyMiles.total}/>
+        <Score label="Intentional Steps" value={weeklyMiles.intentional}/>
       </div>
       <h3>Operation September</h3>
       <div className="scoreGrid">
-        <Score label="Total Miles" value={lifetimeMiles.total.toFixed(1)}/>
-        <Score label="Intentional" value={lifetimeMiles.intentional.toFixed(1)}/>
+        <Score label="Total Steps" value={lifetimeMiles.total}/>
+        <Score label="Intentional Steps" value={lifetimeMiles.intentional}/>
       </div>
       {conditioningDone&&<div className="cashBanner">🏈 CONDITIONING COMPLETE</div>}
     </Card>}
